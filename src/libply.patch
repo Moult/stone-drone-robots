@@ -1,0 +1,23 @@
+diff -crBp ./tools/plyheader.cpp ../../ply-0.1/tools/plyheader.cpp
+*** ./tools/plyheader.cpp	2007-06-13 19:40:52.000000000 +1000
+--- ../../ply-0.1/tools/plyheader.cpp	2015-12-03 09:43:38.389564700 +1100
+***************
+*** 1,5 ****
+--- 1,6 ----
+  #include <fstream>
+  #include <iostream>
++ #include <cstring>
+  
+  #ifdef HAVE_CONFIG_H
+  #  include <config.h>
+***************
+*** 8,13 ****
+--- 9,16 ----
+  int main(int argc, char* argv[])
+  {
+    int argi;
++   int EXIT_SUCCESS = 0;
++   int EXIT_FAILURE = 1;
+    for (argi = 1; argi < argc; ++argi) {
+  
+      if (argv[argi][0] != '-') {
