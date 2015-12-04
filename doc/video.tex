@@ -1,0 +1,35 @@
+\section{Video}
+\subsection{Panoramic video}
+Panoramic video creation is essentially the same as panoramic images except that they are performed for each video frame. Two regular cameras are placed angled apart so that there is an overlap in the field of view with shared feature points. Common feature points in each frame are detected, aligned to determine perspective rules, and the resulting template mask is applied to merge the two images together. This template mask generation does not have to occur for each frame if the rig is stationary --- it is calculated once at the beginning and reused. Once the images are stitched, they may be reprojected using a variety of projection types.
+
+The fundamental libraries used by most panoramic wrappers is {\tt Panorama Tools}\footnote{\url{http://panotools.sourceforge.net/}}, which contains a suite of utilities, similar to how {\tt imagemagick} is packaged. Panoramic stitching is not a perfect science, and so ideally requires visual confirmation. For this, {\tt hugin}\footnote{\url{http://hugin.sourceforge.net/}} is recommended as a cross-platform GUI wrapper.
+
+\subsubsection{Synchronisation of video}
+
+A loud sound, or alternatively a motion which is within the field of view overlap may be used to synchronise the start times of the video.
+
+\subsubsection{Headless panoramic}
+
+It is possible to merge the photos completely headlessly. It is assumed that the two footages are already converted into individual image frames with the same frame rate, and are synchronised so that {\t camera1/n.png} is captured at the same timestamp as {\t camera2/n.png}.
+
+Once the frames are prepared, % TODO
+
+\begin{lstlisting}
+pto_gen -o project.pto camera1\0001.png camera2\0001.png
+pano_modify project.pto --canvas=AUTO
+cpfind -o project_cp.pto project_mod.pto
+autooptimiser -o project_align.pto -a -l -s -m project_cp.pto
+./process_frames.sh
+\end{lstlisting}
+
+{\tt process\_frames.sh} does the actual stitching, and is a simple {\tt bash} loop that goes over all frames.
+
+\begin{lstlisting}
+#!/bin/bash
+for f in camera1/*.png
+do
+    name=`basename $f`
+    nona -o output/$name -m PNG project_align.pto camera1/$name camera2/$name
+done
+\end{lstlisting}
+

@@ -1,0 +1,21 @@
+\section{Stone}
+\subsection{Quad-based toolpath generation}
+The details of the quad-based approach are discussed in the published paper\footnote{Stereotomy of Wave Jointed Blocks}. The rest of the documentation is within the code itself, which is included with this document\footnote{src/krl.py}. A simple demonstration of the KRL generation is also included\footnote{src/krl.blend}, and will be used in the example below. Although the principles may be reapplied to any 3D modeling package, the Python script uses Blender libraries, and so using Blender to visualise and generate the toolpath is compulsory.
+
+The {\tt krl.blend} file includes two objects. The first contains an edge ring which may be used to test a coplanar approach, and another edge ring for a normal approach. The second object can be used as a target vector, to override the coplanar or normal approach. Once generated, the {\tt krl.src} file may be used as an input to the {\tt krl.3dm} Rhino and {\tt krl.gh} Grasshopper file for visualisation with KUKA prc v2.
+
+% TODO
+A useful tip when debugging is to enable debug mode and check indices of the object's vertices, edges, and so on. This can be done easily in the Blender Python console:
+
+\begin{lstlisting}
+>>> bpy.app.debug = True
+\end{lstlisting}
+
+Once set, indices in the Mesh display section of the 3D view's properties ({\tt n}) panel can be enabled.
+
+In the first example, assuming % TODO
+
+\subsection{Planning a cut}
+% TODO
+\subsection{Physical cutting process}
+% TODO
