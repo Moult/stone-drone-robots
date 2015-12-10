@@ -2,9 +2,8 @@
 \subsection{Quad-based toolpath generation}
 The details of the quad-based approach are discussed in the published paper\footnote{Stereotomy of Wave Jointed Blocks}. The rest of the documentation is within the code itself, which is included with this document\footnote{src/krl.py}. A simple demonstration of the KRL generation is also included\footnote{src/krl.blend}, and will be used in the example below. Although the principles may be reapplied to any 3D modeling package, the Python script uses Blender libraries, and so using Blender to visualise and generate the toolpath is compulsory.
 
-The {\tt krl.blend} file includes two objects. The first contains an edge ring which may be used to test a coplanar approach, and another edge ring for a normal approach. The second object can be used as a target vector, to override the coplanar or normal approach. Once generated, the {\tt krl.src} file may be used as an input to the {\tt krl.3dm} Rhino and {\tt krl.gh} Grasshopper file for visualisation with KUKA prc v2.
+The {\tt krl.blend} file includes three objects. The first contains an edge ring which may be used to test a coplanar approach. The second contains another edge ring for a normal approach. The third can be used as a target vector, to override the coplanar or normal approach. Once generated, the {\tt krl.src} file may be used as an input to the {\tt krl.3dm} Rhino and {\tt krl.gh} Grasshopper file for visualisation with KUKA prc v2. This is strictly dependent on an updated version of KUKA prc v2, as earlier versions do not support parsing the KRL format directly.
 
-% TODO
 A useful tip when debugging is to enable debug mode and check indices of the object's vertices, edges, and so on. This can be done easily in the Blender Python console:
 
 \begin{lstlisting}
@@ -13,7 +12,17 @@ A useful tip when debugging is to enable debug mode and check indices of the obj
 
 Once set, indices in the Mesh display section of the 3D view's properties ({\tt n}) panel can be enabled.
 
-In the first example, assuming % TODO
+As an example, assuming we want to cut from edge index 3 to 0 on the {\tt Coplanar} object, we first select vertex index 2, then vertex index 3, ensure {\tt EdgeLoopSorter.is\_coplanar = True}, and run {\tt krl.py}. Loading the resultant {\tt krl.src} will show the generated toolpath. Similarly, if we want to cut from edge index 0 to 3 on the {\tt Normal} object, we first select vertex index 1, then vertex index 0, ensure {\tt EdgeLoopSorter.is\_coplanar = False}, and run {\tt krl.py}. To test the target vector, rename the {\tt InactiveTarget} object to {\tt Target}, and retry the above two scenarios.
+
+To help visualise and check for sanity in the generated toolpath, it is useful to export the mesh from Blender into Rhino. An example export is provided in {\tt krl.obj} and is already imported in the {\tt krl.3dm} file.
+
+\subsubsection{Implementation assumptions}
+
+The system is not fully portable. This is a result of hardcoded assumptions when transferring between 3D programs.
+
+First, Blender upholds a unitless system, but the pseudo units it does offer assumes that we are measuring in metres. This is not very appropriate, and so all units in Blender, and therefore Rhino too, are in millimeters. To prevent confusion, it is assumed that the local object scale is equal to the global scale of the object.
+
+Secondly, axis orientation conventions differ between Blender, Rhino, KRL, and OBJ. For calculation reasons in the Python toolpath script, it is assumed that the KUKA robot has a base that is rotated $A = 0$, $B = 90$, and $C =  0$. This should never change in the KUKA prc v2 settings. If Blender were to export an OBJ for use in Rhino, as in the case of visualisation, it should ensure that $Y$ is set to forward, and $-X$ is set to up.
 
 \subsection{Planning a cut}
 % TODO

@@ -1,3 +1,6 @@
 *.aux
 *.log
 *.out
+*.blend1
+*.3dmbak
+*.swp

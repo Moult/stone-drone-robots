@@ -6,18 +6,18 @@ The fundamental libraries used by most panoramic wrappers is {\tt Panorama Tools
 
 \subsubsection{Synchronisation of video}
 
-A loud sound, or alternatively a motion which is within the field of view overlap may be used to synchronise the start times of the video.
+A loud sound, or alternatively a motion which is within the field of view overlap may be used to synchronise the start times of the video. Trivially done in any video sequencer. Tested using Blender's sequencer without issues.
 
-\subsubsection{Headless panoramic}
+\subsubsection{Panoramic stitching}
 
-It is possible to merge the photos completely headlessly. It is assumed that the two footages are already converted into individual image frames with the same frame rate, and are synchronised so that {\t camera1/n.png} is captured at the same timestamp as {\t camera2/n.png}.
+It is possible to merge the photos completely headlessly. It is assumed that the two footages are already converted into individual image frames with the same frame rate, and are synchronised so that {\tt camera1/n.png} is captured at the same timestamp as {\tt camera2/n.png}.
 
-Once the frames are prepared, % TODO
+Once the frames are prepared, we have to create the template, and then run it on each frame. {\tt hugin} has extensive tutorials\footnote{\url{http://hugin.sourceforge.net/tutorials/index.shtml}} which cover how to do various types of stitching via the GUI, and so are not elaborated here. Instead, this is a minimal example of a headless stitch, based off {\tt Panorama Tools}'s wiki, which is tightly coupled with {\tt hugin}. For more detailed steps and options, it is recommended to read the wiki page\footnote{\url{http://wiki.panotools.org/Panorama_scripting_in_a_nutshell}}.
 
 \begin{lstlisting}
-pto_gen -o project.pto camera1\0001.png camera2\0001.png
-pano_modify project.pto --canvas=AUTO
-cpfind -o project_cp.pto project_mod.pto
+$ pto_gen -o project.pto camera1\0001.png camera2\0001.png
+$ pano_modify project.pto --center --straighten --canvas=AUTO --crop=AUTO
+$ cpfind -o project_cp.pto project_mod.pto
 autooptimiser -o project_align.pto -a -l -s -m project_cp.pto
 ./process_frames.sh
 \end{lstlisting}
@@ -33,3 +33,33 @@ do
 done
 \end{lstlisting}
 
+\subsection{Tracking objects}
+
+The presented problem is how to recreate a moving object from one or more videos in a virtual 3D space. It is possible to do this with photogrammetry to create a point cloud for every single frame of the video, but there are many challenges. First, it requires many cameras to be simultaneously recording so that there are enough source images from different angles for each frame, and secondly, it is a highly tedious process to clean up the point clouds and isolate specific objects for each frame.
+
+A better approach is the commonly used tracking techniques in the VFX industry: motion capture, camera tracking, and object tracking. A camera is used to film the one or more objects placed within a scene. Feature points are then identified in the visual data of the camera, either through markers or other means. Solvers process these features to recreate the scene, recreate the camera motion, and recreate the movement of an object within the scene, or any combination of these. These recreated points are a computer-usable form, and may then be used in the same way as any 1D object in any 3D software. For example, they may be used as IK targets in an armature, or used as hooks for shape keys for deforming an object.
+
+The process described falls under the optical tracking technique. Non optical tracking involves sensors built into the costume that measure intertia or mechanical motion such as creases. This is generally more expensive for custom solutions and so is not discussed further.
+
+Although the general principles of optical tracking always apply, a few details must be determined: how do we demarcate feature points, how do we want to solve them, and what results do we want in the final 3D scene. For feature points, contrast markers are preferred, as alternative algorithms work off silhouettes or dynamically identified surface features. As the robot may have a poorly distinguishable silhouette or lack surface features, we prefer markers to provide a tried and tested way to track the object. The markers may not necessarily be optical (e.g. they may be magnetic), but optical markers are cheap, easily customised, and do not have distance limitations. The optical markers should be high contrast: perhaps they are bright LED lights, or retroreflectively coated materials, with the camera emitting infrared emittors with perhaps an IR filter for added contrast.
+
+Moving from tracked markers into a recreated object in 3D may not be straightforward when the object has to be physically accurate from all angles, instead of merely from the point of view of the camera (as is the common case in VFX). There are two techniques. The first simply uses enough markers are placed on the object so that the shape of the object may be ascertained using photogrammetry techniques. The second involves manually building a double of the object in 3D space with a corresponding armature with body segments: this forms a kinematic model. Markers are then mapped to the segments in the kinematic model which allow a deforming armature to be tracked with much less markers. The former is incredibly flexible and allows for any shape to be ``learned'' by the solver through vision alone, whereas the latter relies on hardcoded information about the object we are tracking, but may save a lot of time during tracking.
+
+\subsubsection{Using Blender}
+
+Blender is free, libre, has a friendly API, and supports point tracking. A set of tutorials called \emph{Track, Match, Blend} were published to talk about the features in 2012 when they were under development\footnote{\url{https://www.youtube.com/watch?v=1v-Bf9XOXIg&list=PLtuvwW4VAp5tu2RdbRHThM6FVFfvFur1g&index=1}}. Despite being almost 4 years old, it is recommended to watch the full playlist to give an overview of the workflow in the software. Blender does not support kinematic models.
+
+One thing not mentioned is the tutorial is how to export tracking information. If we are interested in the tracking information from the movie clip itself, we can do:
+
+\begin{lstlisting}
+>>> bpy.data.movieclips['foo'].tracking.objects['bar'].tracks['baz'].markers.find_frame(N).co.xy
+\end{lstlisting}
+
+The coordinates given assume that $(0, 0)$ is the top left corner, and are given as a fraction of the video size.
+
+If we are interested in the actual 3D track, we can simply link empties to the track, and then grab the location of the empties after all world transformations (i.e. tracking constraints) for each frame.
+
+\begin{lstlisting}
+>>> bpy.data.scenes['foo'].frame_current = N
+>>> bpy.data.objects['foo'].matrix_world.translation
+\end{lstlisting}

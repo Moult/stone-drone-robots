@@ -8,6 +8,7 @@ class EdgeLoopSorter:
 
     def __init__(self):
         self.bm = bmesh.from_edit_mesh(bpy.context.edit_object.data)
+        self.is_coplanar = True
 
     def execute(self):
         unselected_edges = [i for i in self.bm.edges if not i.select]
@@ -88,12 +89,13 @@ $ORI_TYPE=#VAR
                     x_axis = (y_axis.cross(vertex1.normal)).normalized()
                 z_axis = (y_axis.cross(x_axis)).normalized()
 
-            # z axis is negative because ...
-            # This represents a coplanar approach
-            theta_x, theta_y, theta_z = self.get_intrinsic_rotations(x_axis, y_axis, - z_axis, positions)
-
-            # This represents a normal approach
-            #theta_x, theta_y, theta_z = self.get_intrinsic_rotations(z_axis, y_axis, x_axis, positions)
+            if (self.is_coplanar):
+                # z axis is negative because ...
+                # This represents a coplanar approach
+                theta_x, theta_y, theta_z = self.get_intrinsic_rotations(x_axis, y_axis, - z_axis, positions)
+            else:
+                # This represents a normal approach
+                theta_x, theta_y, theta_z = self.get_intrinsic_rotations(z_axis, y_axis, x_axis, positions)
 
             positions.append({
                 'x': -round(midpoint.z),
@@ -158,6 +160,6 @@ $ORI_TYPE=#VAR
 
 edge_loop_sorter = EdgeLoopSorter()
 code = edge_loop_sorter.execute()
-output_file = open('C:/Users/dmou8237/Desktop/cantilever/output.src', 'w')
+output_file = open('krl.src', 'w')
 output_file.write(code)
 output_file.close()
