@@ -24,7 +24,11 @@ First, Blender upholds a unitless system, but the pseudo units it does offer ass
 
 Secondly, axis orientation conventions differ between Blender, Rhino, KRL, and OBJ. For calculation reasons in the Python toolpath script, it is assumed that the KUKA robot has a base that is rotated $A = 0$, $B = 90$, and $C =  0$. This should never change in the KUKA prc v2 settings. If Blender were to export an OBJ for use in Rhino, as in the case of visualisation, it should ensure that $Y$ is set to forward, and $-X$ is set to up.
 
+Due to the rotated robot base, the coordinates of the datum points selected for base calibration must also be changed. Specifically, when the coordinates are read from Blender or Rhino, $X = -Z$, $Y = Y$, and $Z = X$.
+
 \subsection{Planning a cut}
-% TODO
+
+A cut consists of multiple passes, where a recalibration and adjustment of the jig is performed before each pass. Therefore it is important to document the general location of the block relative to the robot in its rest position (i.e. the starting position of the cut usually with a simple number set for its individual axis rotations), the 4 datum points on the block with their corresponding remapped coordinates, the tool $XYZABC$ and the base $XYZABC$. An example spreadsheet {\tt src/krl.xlsx} shows three passes which can be easily printed and read on-site is provided.
+
 \subsection{Physical cutting process}
 % TODO

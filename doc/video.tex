@@ -63,3 +63,11 @@ If we are interested in the actual 3D track, we can simply link empties to the t
 >>> bpy.data.scenes['foo'].frame_current = N
 >>> bpy.data.objects['foo'].matrix_world.translation
 \end{lstlisting}
+
+\subsubsection{Pre-processing to increase tracker contrast}
+
+Marker contrast makes it easier to track. Either the physical marker could be made more high-contrast (i.e. florescent, colour contrast, or IR with retroreflective materials), or we can apply a chroma, colour, or luminance key to the source images to isolate the markers and increase their contrast. This can be done headlessly with {\tt imagemagick}\footnote{\url{http://www.imagemagick.org/Usage/photos/\#chroma_key}}. Alternatively, Blender (or any video compositing program) can also do it, and is probably more convenient to do it within Blender as this suites the rest of the workflow.
+
+\subsection{Some alternatives}
+
+\emph{Vicon} and \emph{MotionBuilder} are the industry bad boys when it comes to kinematic models. They are commercial. However, the industry is based off two (main) open formats: {\tt c3d} and {\tt bvh}. It is also possible to derive both the kinematic model \emph{and} the mappings in real time, which is perhaps beyond the scope of the project, but does mean the robot is truly learning about its surrounding. The general approach is to register markers and a silhouette. The silhouette envelope is shrunk to derive an armature which best fits the markers. Observed motion is then used to determine the constraints of each joint.

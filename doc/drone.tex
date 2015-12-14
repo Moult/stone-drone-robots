@@ -424,12 +424,19 @@ Finally, a \emph{Vertex attribute transfer} should be applied to transfer the co
 \subsubsection{UV mapped textures}
 
 Unless you're a fan of pointillism, you probably should go for UV mapped textures. Unfortunately, this process is very CPU and memory heavy.
+% TODO
 
 \subsubsection{Axis mappings between formats}
-% TODO
+
+A quick note that there are axis orientation mismatches between programs. To export an OBJ from Blender to Meshlab, ensure that $Y$ is set to forward and $Z$ is set to up.
 
 \subsection{Point cloud diffs}
-It is perhaps useful to analyse the diffs between two point clouds to detect worn down elements or elements of the building that have simply disappeared.
-% TODO
+It is useful to analyse the diffs between two point clouds to detect worn down elements or elements of the building that have simply disappeared. {\tt CloudCompare} offers functionality to do this, and is extremely straightforward. However, the usefulness of this depends on the resolution of the scan, and how well the two point clouds are registered with one another. There are two options: testing against a cloud, or against a mesh. The former should be used for comparison against scans, and the latter should be used for comparison against a retopologised, artist created idealised model.
 
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=6cm]{diff}
+\caption{Distance comparison of two point clouds in {\tt CloudCompare}, showing chipping on the left, and gradual erosion on the right.}
+\end{center}
+\end{figure}
 
